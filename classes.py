@@ -76,7 +76,13 @@ class Restaurant:
         if self.coordinates is None:
             return None
         else:
-            return math.sqrt((user_lat - self.coordinates[0]) ** 2 + (user_long - self.coordinates[1]) ** 2)
+            lat1 = math.radians(self.coordinates[0])
+            lat2 = math.radians(user_lat)
+            long1 = math.radians(self.coordinates[1])
+            long2 = math.radians(user_long)
+
+            return (math.acos(math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) *
+                              math.cos(long2 - long1)) * 6371)
 
     def in_price_range(self, low: int, high: int) -> Optional[bool]:
         """Check if self is in the user's price range"""
@@ -109,4 +115,11 @@ class Event:
 
     def calculate_distance(self, user_lat: float, user_long: float) -> float:
         """Calculate the distance between the user and the event location"""
-        return math.sqrt((user_lat - self.coordinates[0]) ** 2 + (user_long - self.coordinates[1]) ** 2)
+        lat1 = math.radians(self.coordinates[0])
+        lat2 = math.radians(user_lat)
+        long1 = math.radians(self.coordinates[1])
+        long2 = math.radians(user_long)
+
+        return (math.acos(math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) *
+                          math.cos(long2 - long1)) * 6371)
+    
