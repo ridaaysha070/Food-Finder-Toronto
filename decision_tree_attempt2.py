@@ -280,36 +280,8 @@ def load_data(lst: list, file: str) -> None:
         lst.append(new_restaurant)
 
 
-def build_decision_tree(file: str) -> Tree:
-    """Build a decision tree storing the restaurant data from the given file.
-
-    Preconditions:
-        - file is the path to a csv file in the format of the provided restaurant.csv
-    """
-    tree = Tree('', [])  # The start of a decision tree
-    with open(file, 'r', encoding='utf-8') as csv_file:
-        reader = csv.reader(csv_file)
-        next(reader)  # skip the header row
-
-        for row in reader:
-            # row is a list[str] containing the data in the file.
-            # Your task is to process this list so that you can insert it into tree.
-            # Note: if PyCharm gives you a warning about mixing bool and str types in a list,
-            # you can safely ignore the warning.
-            if 'Unit' in row[0]:
-                continue
-            if len(row) >= 3:
-                restaurant_name = row[2]
-            else:
-                restaurant_name = 'No Name Available'
-            data = [row[0], get_price_range(row), get_distance_from_user(row, (0, 0))]
-            tree.insert_sequence(data + [restaurant_name])
-
-    return tree
-
-
-def build_decision_tree2(data: list[Restaurant]) -> Tree:
-    """Build a decision tree storing the restaurant data."""
+def build_decision_tree(data: list[Restaurant]) -> Tree:
+    """Build a decision tree storing the restaurant data. For data: list[Restaurant], use the list produced by load_data()"""
     tree = Tree('', [])
     for rest in data:
         tree.insert_sequence([rest.price_range, rest.cuisine, rest.name, rest.address])
