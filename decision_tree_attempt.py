@@ -225,36 +225,12 @@ def build_decision_tree(file: str) -> Tree:
         next(reader)  # skip the header row
 
         for row in reader:
-            # row is a list[str] containing the data in the file.
-            # Your task is to process this list so that you can insert it into tree.
-            # Note: if PyCharm gives you a warning about mixing bool and str types in a list,
-            # you can safely ignore the warning.
-            if 'Unit' in row[0]:
+            if len(row) != 9:
                 continue
-            if len(row) >= 3:
-                restaurant_name = row[2]
-            else:
-                restaurant_name = 'No Name Available'
-            data = [row[0], get_price_range(row), get_distance_from_user(row, (0, 0))]
-            tree.insert_sequence(data + [restaurant_name])
+            data = [row[0], row[4], get_distance_from_user(row, (0, 0))]
+            tree.insert_sequence(data + [row[2]])
 
     return tree
-
-
-def get_price_range(row: list[str]) -> str:
-    """
-    FILLER
-    """
-    for item in row:
-        if item == '$11-30':
-            return item
-        if item == 'Under $10':
-            return item
-        if item == 'Above $61':
-            return item
-        if item == '$31-60':
-            return item
-    return 'No price range available'
 
 
 def get_distance_from_user(row: list[str], user_coordinates: tuple) -> str:
