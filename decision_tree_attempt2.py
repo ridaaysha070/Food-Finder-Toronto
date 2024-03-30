@@ -274,7 +274,7 @@ def load_data(lst: list, file: str) -> None:
         cuisine = rest.Category
         phone = rest['Restaurant Phone']
         pr = rest['Restaurant Price Range']
-        star_rating = 0.0
+        star_rating = 0.0 # placeholder
         new_restaurant = Restaurant(name=name, coordinates=coordinates, cuisine=cuisine, phone=phone,
                                     price_range=pr, address=address, star_rating=star_rating)
         lst.append(new_restaurant)
