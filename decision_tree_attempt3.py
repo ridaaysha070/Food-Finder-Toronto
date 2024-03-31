@@ -436,11 +436,12 @@ def get_user_input(questions: list[str]) -> list[str]:
     return answers_so_far
 
 
-def run_restaurant_finder(user: User, toronto_file: str) -> None:
+def run_restaurant_finder(user: User) -> None:
     """
     Filler
     """
-    tree = build_decision_tree(toronto_file)
+    lst = load_data(user)
+    tree = build_decision_tree2(lst)
     #answers = get_user_input(RESTAURANT_QUESTIONS)
     restaurants = tree.traverse_dec_tree(user.questions)
     if not restaurants:
@@ -449,7 +450,7 @@ def run_restaurant_finder(user: User, toronto_file: str) -> None:
         print(f'Restaurant: {restaurants[0]}')
     else:
         for restaurant in restaurants:
-            print(f'Restaurants: {restaurant}\n')
+            print(f'Restaurant: {restaurant}\n')
 
 
 def get_restaurant_info(lst: list[Restaurant], user: User) -> str:
