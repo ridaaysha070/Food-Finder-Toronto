@@ -1,11 +1,11 @@
 """File containing the Tree, Restaurant, and Event classes to be used in the computations"""
-
 from __future__ import annotations
+from typing import Any, Optional
+import plotly.express as px
 import geopy
 from geopy.geocoders import Nominatim
 import pandas as pd
 import math
-from typing import Any, Optional
 import csv
 
 data = pd.read_csv('trt_rest.csv')
@@ -201,7 +201,7 @@ class Tree:
             existing_subtree = new_subtree
         existing_subtree.insert_sequence(items[1:])
 
-    def traverse_dec_tree(self, answers: list[str]) -> list[str]:
+    def traverse_dec_tree(self, answers: list[str]) -> Optional[list[str]]:
         """
         Traverse the decision tree to determine the possible restaurant(s) that match
         the user's inputs.
@@ -239,10 +239,11 @@ class Restaurant:
     coordinates: Optional[tuple[float, float]]  # (latitude, longitude)
     distance: tuple[str, float]
     website: str
+    index: int
 
     def __init__(self, name: str, cuisine: str, price_range: tuple[int, int], address: str,
                  star_rating: float, phone: str, coordinates: tuple[float, float], distance: tuple[str, float],
-                 website: str):
+                 website: str, index: int):
         """Initalize a new Restaurant with the given information
 
         Preconditions:
@@ -261,6 +262,7 @@ class Restaurant:
         self.star_rating = star_rating
         self.distance = distance  # distance from user
         self.website = website
+        self.index = index  # index in the csv file
 
     def calculate_distance(self, user_lat: float, user_long: float) -> Optional[float]:
         """Calculate the distance between the user and the restaurant"""
@@ -334,7 +336,8 @@ def load_data(user: User) -> list:
         star_rating = 0.0
         dis = get_distance_from_user(lat, long, (user.latitude, user.longitude))
         new_restaurant = Restaurant(name=name, coordinates=coordinates, cuisine=cuisine, phone=phone,
-                                    price_range=pr, address=address, star_rating=star_rating, distance=dis, website=web)
+                                    price_range=pr, address=address, star_rating=star_rating, distance=dis, website=web,
+                                    index=i)
         lst.append(new_restaurant)
     return lst
 
@@ -364,6 +367,15 @@ def build_decision_tree2(restaurants: list[Restaurant]) -> Tree:
     tree = Tree('', [])
     for rest in restaurants:
         tree.insert_sequence([rest.price_range, rest.cuisine, rest.distance[0], rest.name])
+    return tree
+
+
+def build_tree_w_rests(restaurants: list[Restaurant]) -> Tree:
+    """Build a decision tree storing the restaurant data, except instead of ending with the restaurant
+    name, the leaves are restaurant objects."""
+    tree = Tree('', [])
+    for rest in restaurants:
+        tree.insert_sequence([rest.price_range, rest.cuisine, rest.distance[0], rest])
     return tree
 
 
@@ -447,12 +459,10 @@ def get_user_input(questions: list[str]) -> list[str]:
     return answers_so_far
 
 
-def run_restaurant_finder() -> None:
+def run_restaurant_finder(user: User) -> None:  # User object must be created first
     """
     Create a user object and find restaurants for that user based on their requirements.
     """
-    user = User()
-    get_user_info(user)
     lst = load_data(user)
     tree = build_decision_tree2(lst)
     # answers = get_user_input(RESTAURANT_QUESTIONS)
@@ -505,6 +515,60 @@ def get_restaurant_info(lst: list[Restaurant], user: User) -> None:
     if len(matches) == 0:
         print('The restaurant you provided is not one of your recommended restaurants.')
 
+
+def display_map_all_rests() -> None:
+    """Display an interactive map of all the restaurants in the dataset"""
+    # Not sure what to do about the FutureWarning... (the problem is from setting color='Category')
+
+    #  color_scale = [(0, 'orange'), (1, 'red')]
+
+    fig = px.scatter_mapbox(data,
+                            lat="Restaurant Latitude",
+                            lon="Restaurant Longitude",
+                            hover_name="Restaurant Name",
+                            hover_data=["Restaurant Name", "Category"],
+                            color="Category",
+                            # color_continuous_scale=color_scale,
+                            # size="Listed",
+                            zoom=8,
+                            height=800,
+                            width=1300)
+
+    fig.update_layout(mapbox_style="open-street-map")
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.show()
+
+
+def display_map_recommended(u: User) -> None:
+    """Display an interactive map of the user's recommended restaurants from the dataset."""
+
+    lst = load_data(u)
+    tree = build_tree_w_rests(lst)
+    rests = tree.traverse_dec_tree(u.questions)
+    indices = [restaurant.index for restaurant in rests]
+
+    new_df = data.iloc[[indices[0]]]
+
+    for i in indices:
+        current_row = data.iloc[[i]]
+        new_df = pd.concat([current_row, new_df])
+
+    fig = px.scatter_mapbox(new_df,
+                            lat="Restaurant Latitude",
+                            lon="Restaurant Longitude",
+                            hover_name="Restaurant Name",
+                            hover_data=["Restaurant Name", "Category"],
+                            color="Category",
+                            # color_continuous_scale=color_scale,
+                            # size="Listed",
+                            zoom=8,
+                            height=800,
+                            width=1300)
+
+    fig.update_layout(mapbox_style="open-street-map")
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.show()
+
 # TEST WITH:
 # u = User()
 # get_user_info(u)
@@ -515,4 +579,4 @@ def get_restaurant_info(lst: list[Restaurant], user: User) -> None:
 #
 # get_restaurant_info(restaurant_objs, u)  #the restaurant name you enter must be exactly as it appears in the csv file
 #
-# run entire program with: run_restaurant_finder()
+# run with: run_restaurant_finder(u)
