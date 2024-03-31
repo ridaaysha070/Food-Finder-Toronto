@@ -242,8 +242,8 @@ class Restaurant:
     index: int
 
     def __init__(self, name: str, cuisine: str, price_range: tuple[int, int], address: str,
-                 star_rating: float, phone: str, coordinates: tuple[float, float], distance: tuple[str, float],
-                 website: str, index: int):
+                 star_rating: float, contact: tuple[str, str], coordinates: tuple[float, float],
+                 distance: tuple[str, float]):  # , index: int):
         """Initalize a new Restaurant with the given information
 
         Preconditions:
@@ -256,13 +256,11 @@ class Restaurant:
         self.name = name
         self.coordinates = coordinates
         self.cuisine = cuisine
-        self.phone = phone
+        self.contact = contact  # phone number and website
         self.price_range = price_range
         self.address = address
         self.star_rating = star_rating
         self.distance = distance  # distance from user
-        self.website = website
-        self.index = index  # index in the csv file
 
     def calculate_distance(self, user_lat: float, user_long: float) -> Optional[float]:
         """Calculate the distance between the user and the restaurant"""
@@ -335,9 +333,8 @@ def load_data(user: User) -> list:
         web = rest['Restaurant Website']
         star_rating = 0.0
         dis = get_distance_from_user(lat, long, (user.latitude, user.longitude))
-        new_restaurant = Restaurant(name=name, coordinates=coordinates, cuisine=cuisine, phone=phone,
-                                    price_range=pr, address=address, star_rating=star_rating, distance=dis, website=web,
-                                    index=i)
+        new_restaurant = Restaurant(name=name, coordinates=coordinates, cuisine=cuisine, contact=(phone, web),
+                                    price_range=pr, address=address, star_rating=star_rating, distance=dis)
         lst.append(new_restaurant)
     return lst
 
@@ -370,12 +367,12 @@ def build_decision_tree2(restaurants: list[Restaurant]) -> Tree:
     return tree
 
 
-def build_tree_w_rests(restaurants: list[Restaurant]) -> Tree:
+def build_tree_w_rests(rests: list[Restaurant]) -> Tree:
     """Build a decision tree storing the restaurant data, except instead of ending with the restaurant
-    name, the leaves are restaurant objects."""
+    name, the leaves are tuples of restaurant objects and that restaurant's index in the data file."""
     tree = Tree('', [])
-    for rest in restaurants:
-        tree.insert_sequence([rest.price_range, rest.cuisine, rest.distance[0], rest])
+    for i in range(len(rests)):
+        tree.insert_sequence([rests[i].price_range, rests[i].cuisine, rests[i].distance[0], (rests[i], i)])
     return tree
 
 
@@ -503,9 +500,9 @@ def get_restaurant_info(lst: list[Restaurant], user: User) -> None:
         if i.name == rest and i.distance[0] == user.questions[2]:
             clean_ad = i.address.replace("\n", " ")
             if location_info == 'yes':
-                print(f'This restaurant is located {i.distance[1]} km away at {clean_ad}')
+                print(f'This restaurant is located {i.distance[1]} km away at {clean_ad}.')
             if contact_info == 'yes':
-                print(f"This restaurant's phone number is {i.phone}, and their website is {i.website}")
+                print(f"This restaurant's phone number is {i.contact[0]}, and their website is {i.contact[1]}.")
             matches.append(i)
 
     if len(matches) > 1 and all(x.website == y.website for x in matches for y in matches):
@@ -545,11 +542,11 @@ def display_map_recommended(u: User) -> None:
     lst = load_data(u)
     tree = build_tree_w_rests(lst)
     rests = tree.traverse_dec_tree(u.questions)
-    indices = [restaurant.index for restaurant in rests]
+    indices = [restaurant[1] for restaurant in rests]
 
     new_df = data.iloc[[indices[0]]]
 
-    for i in indices:
+    for i in indices[1:]:
         current_row = data.iloc[[i]]
         new_df = pd.concat([current_row, new_df])
 
