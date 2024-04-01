@@ -331,12 +331,32 @@ def load_data(user: User) -> list:
         phone = rest['Restaurant Phone']
         pr = rest['Restaurant Price Range']
         web = rest['Restaurant Website']
-        star_rating = 0.0
+        star_rating = get_star_rating('Restaurant Yelp URL')
         dis = get_distance_from_user(lat, long, (user.latitude, user.longitude))
         new_restaurant = Restaurant(name=name, coordinates=coordinates, cuisine=cuisine, contact=(phone, web),
                                     price_range=pr, address=address, star_rating=star_rating, distance=dis)
         lst.append(new_restaurant)
     return lst
+
+
+def get_star_rating(yelp: str) -> float:
+    """get the star rating from the yelp page"""
+    if yelp == '':
+        return 0.0
+    r = requests.get(yelp)
+    t = r.text
+    num = t.count('label=')
+    while num > 0:
+        i = t.index('label=')
+        if t[i + 7] in '1234567890':
+            if t[i + 8] == '.':
+                string = t[i + 7:i + 10]
+                return float(string)
+            else:
+                return float(t[i + 7])
+        else:
+            num -= 1
+            t = t[i + 1:]
 
 
 def build_decision_tree(file: str) -> Tree:
