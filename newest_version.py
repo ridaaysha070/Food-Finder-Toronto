@@ -7,6 +7,7 @@ from geopy.geocoders import Nominatim
 import pandas as pd
 import math
 import csv
+import requests
 
 data = pd.read_csv('trt_rest.csv')
 
