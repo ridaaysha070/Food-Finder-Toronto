@@ -350,6 +350,11 @@ def load_data(user: User) -> list:
     return lst
 
 
+def get_all_cuisines():
+    """return a set of all the cuisines available"""
+    return list(data.Category.unique())
+    
+
 def get_star_rating(yelp: str) -> float:
     """get the star rating from the yelp page"""
     if yelp == '':
