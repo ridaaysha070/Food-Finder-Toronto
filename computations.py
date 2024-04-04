@@ -370,8 +370,8 @@ def get_star_rating(yelp: str) -> Optional[float]:
 
 
 def build_tree_w_rests(rests: list[Restaurant]) -> Tree:
-    """Build a decision tree storing the restaurant data, except instead of ending with the restaurant
-    name, the leaves are tuples of restaurant objects and that restaurant's index in the data file."""
+    """Build a decision tree storing the restaurant data
+    where the leaves are tuples of restaurant objects and that restaurant's index in the data file."""
     tree = Tree('', [])
     for i in range(len(rests)):
         tree.insert_sequence([rests[i].price_range, rests[i].cuisine, rests[i].distance[0], (rests[i], i)])
@@ -552,18 +552,16 @@ def display_map_all_rests() -> None:
 
 def display_map_recommended(u: User) -> None:
     """Display an interactive map of the user's recommended restaurants from the dataset."""
-
-    lst = load_data(u)
-    tree = build_tree_w_rests(lst)
-    rests = tree.traverse_dec_tree(u.questions)
-    indices = [restaurant[1] for restaurant in rests]
-
+    indices = [y[1] for y in u.recommendations]
     new_df = DATA.iloc[[indices[0]]]
 
     for i in indices[1:]:
         current_row = DATA.iloc[[i]]
         new_df = pd.concat([current_row, new_df])
 
+    user_row = pd.DataFrame({'Restaurant Latitude': [u.latitude], 'Restaurant Longitude': [u.longitude],
+                             'Restaurant Name': ['Your Location'], 'Category': ['You']})
+    new_df = pd.concat([user_row, new_df])
     fig = px.scatter_mapbox(new_df,
                             lat="Restaurant Latitude",
                             lon="Restaurant Longitude",
