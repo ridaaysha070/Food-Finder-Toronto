@@ -304,9 +304,9 @@ class Event:
         self.more_info = more_info
 
 
-def create_event(name: str, location: str, date: str, time: str, more_info: set[str]) -> None:
+def create_event(name: str, location: str, date_and_time: tuple[str, str], more_info: set[str]) -> None:
     """Create an event and add it to the list of events"""
-    e = Event(name=name, location=location, time=time, date=date, more_info=more_info)
+    e = Event(name=name, location=location, time=date_and_time[1], date=date_and_time[0], more_info=more_info)
     ALL_EVENTS.append(e)
 
 
