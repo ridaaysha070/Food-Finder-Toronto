@@ -307,9 +307,9 @@ class Event:
     location: str
     time: str
     date: str
-    more_info: Optional[str]
+    more_info: list[str]
 
-    def __init__(self, name: str, location: str, time: str, date: str, more_info: Optional[str]):
+    def __init__(self, name: str, location: str, time: str, date: str, more_info: list[str]):
         """Initialize a new event with the given information
 
         Preconditions:
