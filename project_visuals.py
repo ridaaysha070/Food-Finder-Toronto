@@ -153,10 +153,12 @@ class ShowEvents:
         tk.Label(self.show_events, text='Upcoming events:', font=14).pack(pady=20)
 
         for event in updated_april3.all_events:
-            tk.Label(self.show_events, text=event.name, font=14).pack(pady=20)
+            tk.Label(self.show_events, text=event.name, font=('Arial', 16)).pack()
             tk.Label(self.show_events, text=event.date + ', ' + event.time, font=12).pack()
+            tk.Label(self.show_events, text=event.location, font=12).pack()
             for i in event.more_info:
                 tk.Label(self.show_events, text=i).pack()
+                tk.Label(self.show_events, text='').pack(pady=10)
 
         self.show_events.mainloop()
 
@@ -169,37 +171,35 @@ class CreateEvent:
         self.create_event.title("Create an event")
         self.create_event.geometry("500x700")
 
-        tk.Label(self.create_event, text="Create a new event", font=18).pack(pady=20)
+        tk.Label(self.create_event, text="Create a new event", font=('Arial', 18)).pack(pady=20)
 
-        tk.Label(self.create_event, text="Event Name:", font=14).pack()
-        n = tk.Entry(self.create_event)
-        n.pack()
-        self.name = n.get()
-
-        tk.Label(self.create_event, text="Event Date:", font=14).pack()
-        d = tk.Entry(self.create_event)
-        d.pack()
-        self.date = d.get()
-
-        tk.Label(self.create_event, text="Event Time:", font=14).pack()
-        t = tk.Entry(self.create_event)
-        t.pack()
-        self.time = t.get()
-
-        tk.Label(self.create_event, text="Event Location:", font=14).pack()
-        l = tk.Entry(self.create_event)
-        l.pack()
-        self.location = l.get()
+        tk.Button(self.create_event, text='Upload Event', command=self.save).pack()
 
         tk.Label(self.create_event, text='').pack(pady=5)
 
-        self.more_info = []
+        tk.Label(self.create_event, text="Event Name:", font=14).pack()
+        self.n = tk.Entry(self.create_event)
+        self.n.pack()
+
+        tk.Label(self.create_event, text="Event Date:", font=14).pack()
+        self.d = tk.Entry(self.create_event)
+        self.d.pack()
+
+        tk.Label(self.create_event, text="Event Time:", font=14).pack()
+        self.t = tk.Entry(self.create_event)
+        self.t.pack()
+
+        tk.Label(self.create_event, text="Event Location:", font=14).pack()
+        self.l = tk.Entry(self.create_event)
+        self.l.pack()
+
+        tk.Label(self.create_event, text='').pack(pady=5)
+
+        self.temp_info = []
         tk.Button(self.create_event, text="Add more information (optional)", font=14, command=self.add_more_info).pack()
         tk.Label(self.create_event, text="eg. event website, entry requirements, etc", font=10).pack()
 
-        tk.Label(self.create_event, text='').pack(pady=5)
 
-        tk.Button(self.create_event, text='Upload Event', command=save).pack(pady=10)
 
         self.create_event.mainloop()
 
@@ -208,8 +208,20 @@ class CreateEvent:
         tk.Label(self.create_event, text="Enter information here", font=10).pack()
         m = tk.Entry(self.create_event)
         m.pack()
-        self.more_info.append(m.get())
+        self.temp_info.append(m)
 
     def save(self):
         """Save the event to all_events"""
+        self.name = self.n.get()
+        self.date = self.d.get()
+        self.time = self.t.get()
+        self.location = self.l.get()
+        self.more_info = {e.get() for e in self.temp_info}
+
         updated_april3.create_event(self.name, self.location, self.date, self.time, self.more_info)
+        temp = tk.Tk()
+        temp.title("saved")
+        temp.geometry("200x70")
+        tk.Label(temp, text="Event Uploaded!", font=('Arial', 20)).pack()
+        self.create_event.destroy()
+
