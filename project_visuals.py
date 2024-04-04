@@ -20,7 +20,7 @@ class Home:
         self.find_restaurant = tk.Button(self.homepage, text='Find restaurants', font=('Arial', 14),
                                          command=RestaurantFinder)
         self.find_restaurant.pack(pady=10)
-        self.find_events = tk.Button(self.homepage, text='See events', font=('Arial', 14))
+        self.find_events = tk.Button(self.homepage, text='See events', font=('Arial', 14), command=ShowEvents)
         self.find_events.pack(pady=10)
         self.create_event = tk.Button(self.homepage, text='Create an event', font=('Arial', 14))
         self.create_event.pack(pady=10)
