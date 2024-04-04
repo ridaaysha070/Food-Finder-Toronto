@@ -1,3 +1,4 @@
+
 """Graphical User Interface for Project 2"""
 
 import tkinter as tk
@@ -22,7 +23,7 @@ class Home:
         self.find_restaurant.pack(pady=10)
         self.find_events = tk.Button(self.homepage, text='See events', font=('Arial', 14), command=ShowEvents)
         self.find_events.pack(pady=10)
-        self.create_event = tk.Button(self.homepage, text='Create an event', font=('Arial', 14))
+        self.create_event = tk.Button(self.homepage, text='Create an event', font=('Arial', 14), command=CreateEvent)
         self.create_event.pack(pady=10)
 
         self.homepage.mainloop()
@@ -68,7 +69,8 @@ class RestaurantFinder:
         frame4 = tk.Frame(self.restofinder)
         l4 = tk.Label(frame4, text='Select a Yelp star rating')
         l4.grid(row=0, column=0)
-        self.star = tk.ttk.Combobox(frame4, value=['Any', '1 star', ' 2 stars', '3 stars', '4 stars', '5 stars'], width=10)
+        self.star = tk.ttk.Combobox(frame4, value=['Any', '1 star', ' 2 stars', '3 stars', '4 stars', '5 stars'],
+                                    width=10)
         self.star.grid(row=1, column=0)
         frame4.pack(pady=20)
 
@@ -165,29 +167,39 @@ class CreateEvent:
         """Create the create_event window"""
         self.create_event = tk.Tk()
         self.create_event.title("Create an event")
-        self.create_event.geometry("500x500")
+        self.create_event.geometry("500x700")
 
         tk.Label(self.create_event, text="Create a new event", font=18).pack(pady=20)
 
-        tk.Label(self.create_event, text="Event name:", font=14).pack()
+        tk.Label(self.create_event, text="Event Name:", font=14).pack()
         n = tk.Entry(self.create_event)
+        n.pack()
         self.name = n.get()
 
-        tk.Label(self.create_event, text="Event date:", font=14).pack()
+        tk.Label(self.create_event, text="Event Date:", font=14).pack()
         d = tk.Entry(self.create_event)
+        d.pack()
         self.date = d.get()
 
-        tk.Label(self.create_event, text="Event time:", font=14).pack()
+        tk.Label(self.create_event, text="Event Time:", font=14).pack()
         t = tk.Entry(self.create_event)
+        t.pack()
         self.time = t.get()
 
-        tk.Label(self.create_event, text="Event location:", font=14).pack()
+        tk.Label(self.create_event, text="Event Location:", font=14).pack()
         l = tk.Entry(self.create_event)
+        l.pack()
         self.location = l.get()
 
+        tk.Label(self.create_event, text='').pack(pady=5)
+
         self.more_info = []
-        tk.Button(self.create_event, text="Add more information (optional)", font=14, command=add_more_info).pack()
+        tk.Button(self.create_event, text="Add more information (optional)", font=14, command=self.add_more_info).pack()
         tk.Label(self.create_event, text="eg. event website, entry requirements, etc", font=10).pack()
+
+        tk.Label(self.create_event, text='').pack(pady=5)
+
+        tk.Button(self.create_event, text='Upload Event', command=save).pack(pady=10)
 
         self.create_event.mainloop()
 
@@ -195,5 +207,9 @@ class CreateEvent:
         """Entry boxes to add more info"""
         tk.Label(self.create_event, text="Enter information here", font=10).pack()
         m = tk.Entry(self.create_event)
+        m.pack()
         self.more_info.append(m.get())
 
+    def save(self):
+        """Save the event to all_events"""
+        updated_april3.create_event(self.name, self.location, self.date, self.time, self.more_info)
