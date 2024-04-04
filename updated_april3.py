@@ -306,10 +306,10 @@ class Event:
     name: str
     location: str
     time: str
-    coordinates: tuple[int, int]
-    distance_from_user: float
+    date: str
+    more_info: Optional[str]
 
-    def __init__(self, name: str, location: str, time: str, date: str):
+    def __init__(self, name: str, location: str, time: str, date: str, more_info: Optional[str]):
         """Initialize a new event with the given information
 
         Preconditions:
@@ -320,6 +320,7 @@ class Event:
         self.date = date
         self.name = name
         self.location = location
+        self.more_info = more_info
 
 
 def create_event(name: str, location: str, date: str, time: Optional[str]):
