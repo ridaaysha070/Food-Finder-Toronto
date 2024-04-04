@@ -2,6 +2,7 @@
 """Graphical User Interface for Project 2"""
 
 import tkinter as tk
+from tkinter import ttk
 import updated_april3
 
 U = updated_april3.User()
@@ -9,35 +10,44 @@ U = updated_april3.User()
 
 class Home:
     """Homepage that will open upon running the program"""
+    homepage: tk.Tk
+
     def __init__(self) -> None:
         """Create a home window"""
         self.homepage = tk.Tk()
         self.homepage.geometry("400x400")
         self.homepage.title("Food Finder Home")
 
-        self.hometitle = tk.Label(self.homepage, text="Toronto Food Finder Home", font=('Arial', 20))
-        self.hometitle.pack(pady=40)
-        self.find_restaurant = tk.Button(self.homepage, text='Find restaurants', font=('Arial', 14),
-                                         command=RestaurantFinder)
-        self.find_restaurant.pack(pady=10)
-        self.find_events = tk.Button(self.homepage, text='See events', font=('Arial', 14), command=ShowEvents)
-        self.find_events.pack(pady=10)
-        self.create_event = tk.Button(self.homepage, text='Create an event', font=('Arial', 14), command=CreateEvent)
-        self.create_event.pack(pady=10)
+        hometitle = tk.Label(self.homepage, text="Toronto Food Finder Home", font=('Arial', 20))
+        hometitle.pack(pady=40)
+        find_restaurant = tk.Button(self.homepage, text='Find restaurants', font=('Arial', 14),
+                                    command=RestaurantFinder)
+        find_restaurant.pack(pady=10)
+        find_events = tk.Button(self.homepage, text='See events', font=('Arial', 14), command=ShowEvents)
+        find_events.pack(pady=10)
+        create_event = tk.Button(self.homepage, text='Create an event', font=('Arial', 14), command=CreateEvent)
+        create_event.pack(pady=10)
 
         self.homepage.mainloop()
 
 
 class RestaurantFinder:
     """Create a window in which the restaurant finder runs, called when the 'Find restaurants' button is clicked"""
+    restofinder: tk.Tk
+    user_address: tk.Entry
+    cuisines: ttk.Combobox
+    price_range: ttk.Combobox
+    distance: ttk.Combobox
+    star: ttk.Combobox
+
     def __init__(self) -> None:
         self.restofinder = tk.Tk()
         self.restofinder.geometry("500x600")
         self.restofinder.title("Restaurant Searcher")
 
-        self.user_address_prompt = tk.Label(self.restofinder, font=("Arial", 14),
-                                            text='Enter your address in the form 123 xyz St, Toronto, Ontario')
-        self.user_address_prompt.pack(pady=20)
+        user_address_prompt = tk.Label(self.restofinder, font=("Arial", 14),
+                                       text='Enter your address in the form 123 xyz St, Toronto, Ontario')
+        user_address_prompt.pack(pady=20)
         self.user_address = tk.Entry(self.restofinder, font=("Arial", 12))
         self.user_address.pack(pady=10)
 
@@ -73,29 +83,29 @@ class RestaurantFinder:
         self.star.grid(row=1, column=0)
         frame4.pack(pady=20)
 
-        self.search = tk.Button(self.restofinder, text="Search restaurants", command=self.save)
-        self.search.pack(pady=20)
+        search = tk.Button(self.restofinder, text="Search restaurants", command=self.save)
+        search.pack(pady=20)
 
         self.restofinder.mainloop()
 
     def save(self) -> None:
         """save the entered addresss"""
-        self.user_ad = self.user_address.get()
-        self.selected_cuis = self.cuisines.get()
-        self.selected_price_range = self.price_range.get()
-        self.selected_distance = self.distance.get()
-        self.selected_star = self.star.get()
-        U.questions = [self.selected_price_range, self.selected_cuis, self.selected_cuis, self.selected_star]
-        U.location = self.user_ad
+        user_ad = self.user_address.get()
+        selected_cuis = self.cuisines.get()
+        selected_price_range = self.price_range.get()
+        selected_distance = self.distance.get()
+        selected_star = self.star.get()
+        U.questions = [selected_price_range, selected_cuis, selected_cuis, selected_star]
+        U.location = user_ad
         U.latitude = updated_april3.get_coords(U.location)[0]
         U.longitude = updated_april3.get_coords(U.location)[1]
 
-        if any(x == '' for x in [self.user_ad, self.selected_cuis, self.selected_price_range, self.selected_distance]):
+        if any(x == '' for x in [user_ad, selected_cuis, selected_price_range, selected_distance]):
             tk.Label(self.restofinder, text='Please fill all criteria').pack(pady=20)
         else:
-            temp = updated_april3.get_user_info(U, location=self.user_ad, distance=self.selected_distance,
-                                                cuisine=self.selected_cuis, price=self.selected_price_range,
-                                                star=self.selected_star)
+            temp = updated_april3.get_user_info(U, location=user_ad, distance=selected_distance,
+                                                cuisine=selected_cuis, price=selected_price_range,
+                                                star=selected_star)
             if temp:
                 tk.Label(self.restofinder, text='Invalid address').pack()
             else:
@@ -103,23 +113,23 @@ class RestaurantFinder:
 
     def show_restaurants(self) -> None:
         """Show the restaurants meeting the user's criteria"""
-        self.recommended_restaurants = updated_april3.run_restaurant_finder()
+        recommended_restaurants = updated_april3.run_restaurant_finder()
 
-        if len(self.recommended_restaurants) == 0:
+        if len(recommended_restaurants) == 0:
             (tk.Label(self.restofinder, text='No restaurants found, please edit your search requirements', font=18)
              .pack(padx=20))
         else:
-            self.show_recs = tk.Tk()
-            self.show_recs.geometry("500x800")
-            self.show_recs.title("Search Results")
+            show_recs = tk.Tk()
+            show_recs.geometry("500x800")
+            show_recs.title("Search Results")
 
-            tk.Label(self.show_recs, text='Restaurants found:', font=18).pack(padx=20)
-            for r in self.recommended_restaurants:
+            tk.Label(show_recs, text='Restaurants found:', font=18).pack(padx=20)
+            for r in recommended_restaurants:
                 resto_name = r[12:len(r) - 1]
-                tk.Label(self.show_recs, text=resto_name, font=14).pack()
-                tk.Button(self.show_recs, text='More Info', font=12, command=self.get_resto_info(resto_name)).pack()
+                tk.Label(show_recs, text=resto_name, font=14).pack()
+                tk.Button(show_recs, text='More Info', font=12, command=self.get_resto_info(resto_name)).pack()
 
-        tk.Button(self.show_recs, text='View Map', command=updated_april3.display_map_recommended(U)).pack()
+            tk.Button(show_recs, text='View Map', command=updated_april3.display_map_recommended(U)).pack()
 
     def get_resto_info(self, name: str) -> None:
         """Run the restaurant finder from the backend file"""
@@ -148,6 +158,8 @@ class RestaurantFinder:
 
 class ShowEvents:
     """Window to show user-inputted events"""
+    show_events: tk.Tk
+
     def __init__(self) -> None:
         """Create the show_events window"""
         self.show_events = tk.Tk()
@@ -169,6 +181,13 @@ class ShowEvents:
 
 class CreateEvent:
     """Window to create a new event"""
+    create_event: tk.Tk
+    n: tk.Entry
+    d: tk.Entry
+    t: tk.Entry
+    a: tk.Entry
+    temp_info: list
+
     def __init__(self) -> None:
         """Create the create_event window"""
         self.create_event = tk.Tk()
@@ -194,8 +213,8 @@ class CreateEvent:
         self.t.pack()
 
         tk.Label(self.create_event, text="Event Location:", font=14).pack()
-        self.l = tk.Entry(self.create_event)
-        self.l.pack()
+        self.a = tk.Entry(self.create_event)
+        self.a.pack()
 
         tk.Label(self.create_event, text='').pack(pady=5)
 
@@ -214,13 +233,13 @@ class CreateEvent:
 
     def save(self) -> None:
         """Save the event to all_events"""
-        self.name = self.n.get()
-        self.date = self.d.get()
-        self.time = self.t.get()
-        self.location = self.l.get()
-        self.more_info = {e.get() for e in self.temp_info}
+        name = self.n.get()
+        date = self.d.get()
+        time = self.t.get()
+        location = self.a.get()
+        more_info = {e.get() for e in self.temp_info}
 
-        updated_april3.create_event(self.name, self.location, self.date, self.time, self.more_info)
+        updated_april3.create_event(name, location, date, time, more_info)
         temp = tk.Tk()
         temp.title("saved")
         temp.geometry("200x70")
