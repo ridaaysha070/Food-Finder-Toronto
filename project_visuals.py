@@ -153,8 +153,47 @@ class ShowEvents:
         for event in updated_april3.all_events:
             tk.Label(self.show_events, text=event.name, font=14).pack(pady=20)
             tk.Label(self.show_events, text=event.date + ', ' + event.time, font=12).pack()
-            if event.more_info:
-                tk.Label(self.show_events, text='More info: ' + event.more_info, font=12).pack()
+            for i in event.more_info:
+                tk.Label(self.show_events, text=i).pack()
 
         self.show_events.mainloop()
+
+
+class CreateEvent:
+    """Window to create a new event"""
+    def __init__(self):
+        """Create the create_event window"""
+        self.create_event = tk.Tk()
+        self.create_event.title("Create an event")
+        self.create_event.geometry("500x500")
+
+        tk.Label(self.create_event, text="Create a new event", font=18).pack(pady=20)
+
+        tk.Label(self.create_event, text="Event name:", font=14).pack()
+        n = tk.Entry(self.create_event)
+        self.name = n.get()
+
+        tk.Label(self.create_event, text="Event date:", font=14).pack()
+        d = tk.Entry(self.create_event)
+        self.date = d.get()
+
+        tk.Label(self.create_event, text="Event time:", font=14).pack()
+        t = tk.Entry(self.create_event)
+        self.time = t.get()
+
+        tk.Label(self.create_event, text="Event location:", font=14).pack()
+        l = tk.Entry(self.create_event)
+        self.location = l.get()
+
+        self.more_info = []
+        tk.Button(self.create_event, text="Add more information (optional)", font=14, command=add_more_info).pack()
+        tk.Label(self.create_event, text="eg. event website, entry requirements, etc", font=10).pack()
+
+        self.create_event.mainloop()
+
+    def add_more_info(self):
+        """Entry boxes to add more info"""
+        tk.Label(self.create_event, text="Enter information here", font=10).pack()
+        m = tk.Entry(self.create_event)
+        self.more_info.append(m.get())
 
