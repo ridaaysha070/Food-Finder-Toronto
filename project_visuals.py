@@ -32,7 +32,7 @@ class RestaurantFinder:
     """Create a window in which the restaurant finder runs, called when the 'Find restaurants' button is clicked"""
     def __init__(self):
         self.restofinder = tk.Tk()
-        self.restofinder.geometry("500x500")
+        self.restofinder.geometry("500x600")
         self.restofinder.title("Restaurant Searcher")
 
         self.user_address_prompt = tk.Label(self.restofinder, font=("Arial", 14),
