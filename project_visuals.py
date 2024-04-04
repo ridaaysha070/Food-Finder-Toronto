@@ -111,11 +111,17 @@ class RestaurantFinder:
             (tk.Label(self.restofinder, text='No restaurants found, please edit your search requirements', font=18)
              .pack(padx=20))
         else:
-            tk.Label(self.restofinder, text='Restaurants found:', font=18).pack(padx=20)
+            self.show_recs = tk.Tk()
+            self.show_recs.geometry("500x800")
+            self.show_recs.title("Search Results")
+
+            tk.Label(self.show_recs, text='Restaurants found:', font=18).pack(padx=20)
             for r in self.recommended_restaurants:
                 resto_name = r[12:len(r) - 1]
-                tk.Label(self.restofinder, text=resto_name, font=14).pack()
-                tk.Button(self.restofinder, text='More Info', font=12, command=self.get_resto_info(resto_name)).pack()
+                tk.Label(self.show_recs, text=resto_name, font=14).pack()
+                tk.Button(self.show_recs, text='More Info', font=12, command=self.get_resto_info(resto_name)).pack()
+
+        tk.Button(self.show_recs, text='View Map', command=updated_april3.display_map_recommended(U)).pack()
 
     def get_resto_info(self, name: str):
         """Run the restaurant finder from the backend file"""
@@ -134,12 +140,12 @@ class RestaurantFinder:
         matches = updated_april3.get_restaurant_info(user=U, restaurant=name, loc=(location == 1), con=(contact == 1),
                                                      review=(review == 1))
         for m in matches[:len(matches) - 1]:
-            tk.Label(self.restofinder, text=m[0], font=14).pack()
+            tk.Label(location, text=m[0], font=14).pack()
             for n in m[1]:
                 if n:
-                    tk.Label(self.restofinder, text=n, font=12).pack()
+                    tk.Label(location, text=n, font=12).pack()
         if matches[len(matches) - 1]:
-            tk.Label(self.restofinder, text=matches[len(matches) - 1], font=14).pack()
+            tk.Label(location, text=matches[len(matches) - 1], font=14).pack()
 
 
 class ShowEvents:
