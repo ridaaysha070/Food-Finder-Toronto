@@ -65,6 +65,13 @@ class RestaurantFinder:
         self.distance.grid(row=1, column=0)
         frame3.pack(pady=20)
 
+        frame4 = tk.Frame(self.restofinder)
+        l4 = tk.Label(frame4, text='Select a Yelp star rating')
+        l4.grid(row=0, column=0)
+        self.star = tk.ttk.Combobox(frame4, value=['Any', '1 star', ' 2 stars', '3 stars', '4 stars', '5 stars'], width=10)
+        self.star.grid(row=1, column=0)
+        frame4.pack(pady=20)
+
         self.search = tk.Button(self.restofinder, text="Search restaurants", command=self.save)
         self.search.pack(pady=20)
 
@@ -76,11 +83,19 @@ class RestaurantFinder:
         self.selected_cuis = self.cuisines.get()
         self.selected_price_range = self.price_range.get()
         self.selected_distance = self.distance.get()
+        self.selected_star = self.star.get()
+        U.questions = [self.selected_price_range, self.selected_cuis, self.selected_cuis, self.selected_star]
+        U.location = self.user_ad
+        U.latitude = updated_april3.get_coords(U.location)[0]
+        U.longitude = updated_april3.get_coords(U.location)[1]
+
+
         if any(x == '' for x in [self.user_ad, self.selected_cuis, self.selected_price_range, self.selected_distance]):
             tk.Label(self.restofinder, text='Please fill all criteria').pack(pady=20)
         else:
             temp = updated_april3.get_user_info(U, location=self.user_ad, distance=self.selected_distance,
-                                                cuisine=self.selected_cuis, price=self.selected_price_range)
+                                                cuisine=self.selected_cuis, price=self.selected_price_range, star=
+                                                self.selected_star)
             if temp:
                 tk.Label(self.restofinder, text='Invalid address').pack()
             else:
@@ -88,7 +103,7 @@ class RestaurantFinder:
 
     def show_restaurants(self):
         """Show the restaurants meeting the user's criteria"""
-        self.recommended_restaurants = updated_april3.run_restaurant_finder()
+        self.recommended_restaurants = updated_april3.run_restaurant_finder_test(U)
 
         if len(self.recommended_restaurants) == 0:
             (tk.Label(self.restofinder, text='No restaurants found, please edit your search requirements', font=18)
