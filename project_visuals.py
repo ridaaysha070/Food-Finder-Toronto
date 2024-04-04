@@ -138,3 +138,23 @@ class RestaurantFinder:
                     tk.Label(self.restofinder, text=n, font=12).pack()
         if matches[len(matches) - 1]:
             tk.Label(self.restofinder, text=matches[len(matches) - 1], font=14).pack()
+
+
+class ShowEvents:
+    """Window to show user-inputted events"""
+    def __init__(self):
+        """Create the show_events window"""
+        self.show_events = tk.Tk()
+        self.show_events.title("Events")
+        self.show_events.geometry("500x500")
+
+        tk.Label(self.show_events, text='Upcoming events:', font=14).pack(pady=20)
+
+        for event in updated_april3.all_events:
+            tk.Label(self.show_events, text=event.name, font=14).pack(pady=20)
+            tk.Label(self.show_events, text=event.date + ', ' + event.time, font=12).pack()
+            if event.more_info:
+                tk.Label(self.show_events, text='More info: ' + event.more_info, font=12).pack()
+
+        self.show_events.mainloop()
+
