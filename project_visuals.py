@@ -112,7 +112,7 @@ class RestaurantFinder:
             tk.Label(self.restofinder, text='Restaurants found:', font=18).pack(padx=20)
             for r in self.recommended_restaurants:
                 resto_name = r[12:len(r) - 1]
-                tk.Label(self.restofinder, text=r, font=14).pack()
+                tk.Label(self.restofinder, text=resto_name, font=14).pack()
                 tk.Button(self.restofinder, text='More Info', font=12, command=self.get_resto_info(resto_name)).pack()
 
     def get_resto_info(self, name: str):
