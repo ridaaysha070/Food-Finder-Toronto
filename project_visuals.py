@@ -2,7 +2,6 @@
 """Graphical User Interface for Project 2"""
 
 import tkinter as tk
-from tkinter import ttk
 import updated_april3
 
 U = updated_april3.User()
@@ -10,7 +9,7 @@ U = updated_april3.User()
 
 class Home:
     """Homepage that will open upon running the program"""
-    def __init__(self):
+    def __init__(self) -> None:
         """Create a home window"""
         self.homepage = tk.Tk()
         self.homepage.geometry("400x400")
@@ -31,7 +30,7 @@ class Home:
 
 class RestaurantFinder:
     """Create a window in which the restaurant finder runs, called when the 'Find restaurants' button is clicked"""
-    def __init__(self):
+    def __init__(self) -> None:
         self.restofinder = tk.Tk()
         self.restofinder.geometry("500x600")
         self.restofinder.title("Restaurant Searcher")
@@ -79,7 +78,7 @@ class RestaurantFinder:
 
         self.restofinder.mainloop()
 
-    def save(self):
+    def save(self) -> None:
         """save the entered addresss"""
         self.user_ad = self.user_address.get()
         self.selected_cuis = self.cuisines.get()
@@ -91,19 +90,18 @@ class RestaurantFinder:
         U.latitude = updated_april3.get_coords(U.location)[0]
         U.longitude = updated_april3.get_coords(U.location)[1]
 
-
         if any(x == '' for x in [self.user_ad, self.selected_cuis, self.selected_price_range, self.selected_distance]):
             tk.Label(self.restofinder, text='Please fill all criteria').pack(pady=20)
         else:
             temp = updated_april3.get_user_info(U, location=self.user_ad, distance=self.selected_distance,
-                                                cuisine=self.selected_cuis, price=self.selected_price_range, star=
-                                                self.selected_star)
+                                                cuisine=self.selected_cuis, price=self.selected_price_range,
+                                                star=self.selected_star)
             if temp:
                 tk.Label(self.restofinder, text='Invalid address').pack()
             else:
                 self.show_restaurants()
 
-    def show_restaurants(self):
+    def show_restaurants(self) -> None:
         """Show the restaurants meeting the user's criteria"""
         self.recommended_restaurants = updated_april3.run_restaurant_finder()
 
@@ -123,14 +121,14 @@ class RestaurantFinder:
 
         tk.Button(self.show_recs, text='View Map', command=updated_april3.display_map_recommended(U)).pack()
 
-    def get_resto_info(self, name: str):
+    def get_resto_info(self, name: str) -> None:
         """Run the restaurant finder from the backend file"""
         more_info = tk.Tk()
         more_info.title(name)
 
-        l, c, r = tk.IntVar(), tk.IntVar(), tk.IntVar()
+        a, c, r = tk.IntVar(), tk.IntVar(), tk.IntVar()
 
-        location = tk.Checkbutton(more_info, text='Location', variable=l)
+        location = tk.Checkbutton(more_info, text='Location', variable=a)
         location.pack()
         contact = tk.Checkbutton(more_info, text='Contact Information', variable=c)
         contact.pack()
@@ -138,7 +136,7 @@ class RestaurantFinder:
         review.pack()
 
         matches = updated_april3.get_restaurant_info(user=U, restaurant=name, loc=(location == 1), con=(contact == 1),
-                                                     review=(review == 1))
+                                                     review=review == 1)
         for m in matches[:len(matches) - 1]:
             tk.Label(location, text=m[0], font=14).pack()
             for n in m[1]:
@@ -150,7 +148,7 @@ class RestaurantFinder:
 
 class ShowEvents:
     """Window to show user-inputted events"""
-    def __init__(self):
+    def __init__(self) -> None:
         """Create the show_events window"""
         self.show_events = tk.Tk()
         self.show_events.title("Events")
@@ -171,7 +169,7 @@ class ShowEvents:
 
 class CreateEvent:
     """Window to create a new event"""
-    def __init__(self):
+    def __init__(self) -> None:
         """Create the create_event window"""
         self.create_event = tk.Tk()
         self.create_event.title("Create an event")
@@ -205,18 +203,16 @@ class CreateEvent:
         tk.Button(self.create_event, text="Add more information (optional)", font=14, command=self.add_more_info).pack()
         tk.Label(self.create_event, text="eg. event website, entry requirements, etc", font=10).pack()
 
-
-
         self.create_event.mainloop()
 
-    def add_more_info(self):
+    def add_more_info(self) -> None:
         """Entry boxes to add more info"""
         tk.Label(self.create_event, text="Enter information here", font=10).pack()
         m = tk.Entry(self.create_event)
         m.pack()
         self.temp_info.append(m)
 
-    def save(self):
+    def save(self) -> None:
         """Save the event to all_events"""
         self.name = self.n.get()
         self.date = self.d.get()
@@ -231,3 +227,22 @@ class CreateEvent:
         tk.Label(temp, text="Event Uploaded!", font=('Arial', 20)).pack()
         self.create_event.destroy()
 
+
+###################################################################################################
+# Main block
+###################################################################################################
+if __name__ == '__main__':
+    # We have provided the following code to run any doctest examples that you add.
+    # (We have not provided any doctest examples in the starter code, but encourage you
+    # to add your own.)
+    import doctest
+
+    doctest.testmod(verbose=True)
+
+    # When you are ready to check your work with python_ta, uncomment the following lines.
+    # (In PyCharm, select the lines below and press Ctrl/Cmd + / to toggle comments.)
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'extra-imports': ['hashlib', 'tkinter', 'updated_april3']
+    })
