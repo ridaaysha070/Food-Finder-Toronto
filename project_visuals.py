@@ -168,7 +168,7 @@ class ShowEvents:
 
         tk.Label(self.show_events, text='Upcoming events:', font=14).pack(pady=20)
 
-        for event in updated_april3.all_events:
+        for event in updated_april3.ALL_EVENTS:
             tk.Label(self.show_events, text=event.name, font=('Arial', 16)).pack()
             tk.Label(self.show_events, text=event.date + ', ' + event.time, font=12).pack()
             tk.Label(self.show_events, text=event.location, font=12).pack()
@@ -239,15 +239,12 @@ class CreateEvent:
         location = self.a.get()
         more_info = {e.get() for e in self.temp_info}
 
-        updated_april3.create_event(name, location, date, time, more_info)
+        updated_april3.create_event(name, location, (date, time), more_info)
         temp = tk.Tk()
         temp.title("saved")
         temp.geometry("200x70")
         tk.Label(temp, text="Event Uploaded!", font=('Arial', 20)).pack()
         self.create_event.destroy()
-
-
-Home()
 
 
 ###################################################################################################
