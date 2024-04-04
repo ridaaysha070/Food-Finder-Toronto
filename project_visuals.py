@@ -3,9 +3,9 @@
 
 import tkinter as tk
 from tkinter import ttk
-import updated_april3
+import computations
 
-U = updated_april3.User()
+U = computations.User()
 
 
 class Home:
@@ -54,7 +54,7 @@ class RestaurantFinder:
         frame = tk.Frame(self.restofinder)
         l1 = tk.Label(frame, text='Select cuisine')
         l1.grid(row=0, column=0)
-        course = updated_april3.get_all_cuisines()
+        course = computations.get_all_cuisines()
         self.cuisines = tk.ttk.Combobox(frame, value=course, width=10)
         self.cuisines.grid(row=1, column=0)
         frame.pack(pady=20)
@@ -97,13 +97,13 @@ class RestaurantFinder:
         selected_star = self.star.get()
         U.questions = [selected_price_range, selected_cuis, selected_cuis, selected_star]
         U.location = user_ad
-        U.latitude = updated_april3.get_coords(U.location)[0]
-        U.longitude = updated_april3.get_coords(U.location)[1]
+        U.latitude = computations.get_coords(U.location)[0]
+        U.longitude = computations.get_coords(U.location)[1]
 
         if any(x == '' for x in [user_ad, selected_cuis, selected_price_range, selected_distance]):
             tk.Label(self.restofinder, text='Please fill all criteria').pack(pady=20)
         else:
-            temp = updated_april3.get_user_info(U, location=user_ad, distance=selected_distance,
+            temp = computations.get_user_info(U, location=user_ad, distance=selected_distance,
                                                 cuisine=selected_cuis, price=selected_price_range,
                                                 star=selected_star)
             if temp:
@@ -113,7 +113,7 @@ class RestaurantFinder:
 
     def show_restaurants(self) -> None:
         """Show the restaurants meeting the user's criteria"""
-        recommended_restaurants = updated_april3.run_restaurant_finder()
+        recommended_restaurants = computations.run_restaurant_finder()
 
         if len(recommended_restaurants) == 0:
             (tk.Label(self.restofinder, text='No restaurants found, please edit your search requirements', font=18)
@@ -129,7 +129,7 @@ class RestaurantFinder:
                 tk.Label(show_recs, text=resto_name, font=14).pack()
                 tk.Button(show_recs, text='More Info', font=12, command=self.get_resto_info(resto_name)).pack()
 
-            tk.Button(show_recs, text='View Map', command=updated_april3.display_map_recommended(U)).pack()
+            tk.Button(show_recs, text='View Map', command=computations.display_map_recommended(U)).pack()
 
     def get_resto_info(self, name: str) -> None:
         """Run the restaurant finder from the backend file"""
@@ -145,7 +145,7 @@ class RestaurantFinder:
         review = tk.Checkbutton(more_info, text='Review Information', variable=r)
         review.pack()
 
-        matches = updated_april3.get_restaurant_info(user=U, restaurant=name, loc=(location == 1), con=(contact == 1),
+        matches = computations.get_restaurant_info(user=U, restaurant=name, loc=(location == 1), con=(contact == 1),
                                                      review=review == 1)
         for m in matches[:len(matches) - 1]:
             tk.Label(location, text=m[0], font=14).pack()
@@ -168,7 +168,7 @@ class ShowEvents:
 
         tk.Label(self.show_events, text='Upcoming events:', font=14).pack(pady=20)
 
-        for event in updated_april3.ALL_EVENTS:
+        for event in computations.ALL_EVENTS:
             tk.Label(self.show_events, text=event.name, font=('Arial', 16)).pack()
             tk.Label(self.show_events, text=event.date + ', ' + event.time, font=12).pack()
             tk.Label(self.show_events, text=event.location, font=12).pack()
@@ -239,7 +239,7 @@ class CreateEvent:
         location = self.a.get()
         more_info = {e.get() for e in self.temp_info}
 
-        updated_april3.create_event(name, location, (date, time), more_info)
+        computations.create_event(name, location, (date, time), more_info)
         temp = tk.Tk()
         temp.title("saved")
         temp.geometry("200x70")
@@ -263,5 +263,5 @@ if __name__ == '__main__':
     import python_ta
     python_ta.check_all(config={
         'max-line-length': 120,
-        'extra-imports': ['hashlib', 'tkinter', 'updated_april3']
+        'extra-imports': ['hashlib', 'tkinter', 'computations']
     })
