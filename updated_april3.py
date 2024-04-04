@@ -1,17 +1,16 @@
 """File containing the Tree, Restaurant, and Event classes to be used in the computations"""
 from __future__ import annotations
 from typing import Any, Optional
+import math
 from requests.exceptions import MissingSchema
 import plotly.express as px
 from geopy.geocoders import Nominatim
 import pandas as pd
-import math
-import csv
 import requests
 
-rawdata = pd.read_csv('trt_rest.csv')
+RAWDATA = pd.read_csv('trt_rest.csv')
 
-data = rawdata.dropna().drop_duplicates(subset=['Restaurant Address', 'Category'], keep='first')
+DATA = RAWDATA.dropna().drop_duplicates(subset=['Restaurant Address', 'Category'], keep='first')
 
 RESTAURANT_QUESTIONS = [
     'What is your price range?\nUnder $10\n$11-30\n$31-60\nAbove $61',
@@ -20,7 +19,7 @@ RESTAURANT_QUESTIONS = [
     'What Yelp star rating would you like the restaurant to have?\nAny\n1 star\n2 stars\n3 stars\n4 stars\n5 stars'
 ]
 
-all_events = []
+ALL_EVENTS = []
 
 
 class User:
@@ -63,6 +62,7 @@ def get_user_info(user: User, location: str, cuisine: str, price: str, distance:
         user.location = location
         user.latitude = float(lat)
         user.longitude = float(long)
+        return None
     else:
         return 'Invalid location'
 
@@ -70,6 +70,7 @@ def get_user_info(user: User, location: str, cuisine: str, price: str, distance:
 
 
 def get_coords(ad: str) -> tuple[float, float]:
+    """Get the coordinates of this address."""
     geolocator = Nominatim(user_agent="a")
     loc1 = geolocator.geocode(ad)
     lat = loc1.raw['lat']
@@ -252,7 +253,7 @@ class Restaurant:
 
     def __init__(self, name: str, cuisine: str, price_range: tuple[int, int], address: str,
                  star_rating: float, contact: tuple[str, str], coordinates: tuple[float, float],
-                 distance: tuple[str, float]):  # , index: int):
+                 distance: tuple[str, float]) -> None:
         """Initalize a new Restaurant with the given information
 
         Preconditions:
@@ -281,8 +282,8 @@ class Restaurant:
             long1 = math.radians(self.coordinates[1])
             long2 = math.radians(user_long)
 
-            return (math.acos(math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) *
-                              math.cos(long2 - long1)) * 6371)
+            return (math.acos(math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2)
+                              * math.cos(long2 - long1)) * 6371)
 
 
 class Event:
@@ -291,26 +292,27 @@ class Event:
     name: str
     location: str
     time: str
-    coordinates: tuple[int, int]
-    distance_from_user: float
+    date: str
+    more_info: set[str]
 
-    def __init__(self, name: str, location: str, time: str, date: str):
+    def __init__(self, name: str, location: str, time: str, date: str, more_info: set[str]) -> None:
         """Initialize a new event with the given information
 
         Preconditions:
         - name != ''
         - location != ''
         """
-        self.time = time
-        self.date = date
         self.name = name
         self.location = location
+        self.time = time
+        self.date = date
+        self.more_info = more_info
 
 
-def create_event(name: str, location: str, date: str, time: Optional[str]):
+def create_event(name: str, location: str, date_and_time: tuple[str, str], more_info: set[str]) -> None:
     """Create an event and add it to the list of events"""
-    e = Event(name=name, location=location, time=time, date=date)
-    all_events.append(e)
+    e = Event(name=name, location=location, time=date_and_time[1], date=date_and_time[0], more_info=more_info)
+    ALL_EVENTS.append(e)
 
 
 def load_data(user: User) -> list:
@@ -318,8 +320,8 @@ def load_data(user: User) -> list:
     Load the file data into restaurant objects.
     """
     lst = []
-    for i in range(len(data)):
-        rest = data.iloc[i]
+    for i in range(len(DATA)):
+        rest = DATA.iloc[i]
         address = rest['Restaurant Address']
         lat = rest['Restaurant Latitude']
         long = rest['Restaurant Longitude']
@@ -341,12 +343,12 @@ def load_data(user: User) -> list:
     return lst
 
 
-def get_all_cuisines():
+def get_all_cuisines() -> list:
     """return a set of all the cuisines available"""
-    return list(data.Category.unique())
+    return list(DATA.Category.unique())
 
 
-def get_star_rating(yelp: str) -> float:
+def get_star_rating(yelp: str) -> Optional[float]:
     """get the star rating from the yelp page"""
     if yelp == '':
         return 0.0
@@ -364,6 +366,8 @@ def get_star_rating(yelp: str) -> float:
         else:
             num -= 1
             t = t[i + 1:]
+    return None
+
 
 def build_tree_w_rests(rests: list[Restaurant]) -> Tree:
     """Build a decision tree storing the restaurant data, except instead of ending with the restaurant
@@ -373,6 +377,7 @@ def build_tree_w_rests(rests: list[Restaurant]) -> Tree:
         tree.insert_sequence([rests[i].price_range, rests[i].cuisine, rests[i].distance[0], (rests[i], i)])
     return tree
 
+
 def get_distance_from_user(latitude: float, longitude: float, user_coords: tuple[float, float]) -> tuple[str, float]:
     """
     Calculate the distance from the user's location in km.
@@ -381,8 +386,8 @@ def get_distance_from_user(latitude: float, longitude: float, user_coords: tuple
     longitude1 = math.radians(longitude)
     latitude2 = math.radians(user_coords[0])
     longitude2 = math.radians(user_coords[1])
-    distance = (math.acos(math.sin(latitude1) * math.sin(latitude2) + math.cos(latitude1) * math.cos(latitude2) *
-                          math.cos(longitude2 - longitude1)) * 6371)
+    distance = (math.acos(math.sin(latitude1) * math.sin(latitude2) + math.cos(latitude1) * math.cos(latitude2)
+                          * math.cos(longitude2 - longitude1)) * 6371)
     if distance < 1:
         return ('Under 1 km', round(distance, 4))
     elif 1 <= distance <= 5:
@@ -466,11 +471,11 @@ def load_stars(rests: list[tuple[Restaurant, int]]) -> None:
     If the star rating cannot be found, use 0.0 as a placeholder.
     """
     for r in rests:
-        if 'adredir' in data.iloc[r[1]]['Restaurant Yelp URL']:
+        if 'adredir' in DATA.iloc[r[1]]['Restaurant Yelp URL']:
             r[0].star_rating = 0.0
         else:
             try:
-                r[0].star_rating = get_star_rating(data.iloc[r[1]]['Restaurant Yelp URL'])
+                r[0].star_rating = get_star_rating(DATA.iloc[r[1]]['Restaurant Yelp URL'])
             except MissingSchema:
                 r[0].star_rating = 0.0
 
@@ -504,24 +509,22 @@ def get_restaurant_info(user: User, restaurant: str, loc: bool, con: bool, revie
             if con:
                 con_info = f"{i[0].name}'s phone number is {i[0].contact[0]}, their website is {i[0].contact[1]}."
             if review:
-                load_stars([i])
-                if i[0].star_rating == 0.0:
-                    rating = 'NaN'
-                else:
-                    rating = i[0].star_rating
+                rating = get_info_hlpr(i)
                 rev_info = f"{i[0].name}'s Yelp rating is {rating}."
             matches.append([loc_info, con_info, rev_info])
-
-    # note = ''
-    # if len(matches) > 1 and all(x[1].contact[1] == y[1].contact[1] for x in matches for y in matches):
-    # note += 'Note: this restaurant has multiple locations that meet your requirements.')
-    # elif len(matches) > 1:
-    # note += 'Note: there are multiple restaurants with the same name that meet your requirements.')
-    # matches.append(note)
 
     return matches
     # if len(matches) == 0:
     #     print('The restaurant you provided is not one of your recommended restaurants.')
+
+
+def get_info_hlpr(i: tuple[Restaurant, int]) -> str:
+    """Return the necessary star rating."""
+    load_stars([i])
+    if i[0].star_rating == 0.0:
+        return 'NaN'
+    else:
+        return str(i[0].star_rating)
 
 
 def display_map_all_rests() -> None:
@@ -530,7 +533,7 @@ def display_map_all_rests() -> None:
 
     #  color_scale = [(0, 'orange'), (1, 'red')]
 
-    fig = px.scatter_mapbox(data,
+    fig = px.scatter_mapbox(DATA,
                             lat="Restaurant Latitude",
                             lon="Restaurant Longitude",
                             hover_name="Restaurant Name",
@@ -555,10 +558,10 @@ def display_map_recommended(u: User) -> None:
     rests = tree.traverse_dec_tree(u.questions)
     indices = [restaurant[1] for restaurant in rests]
 
-    new_df = data.iloc[[indices[0]]]
+    new_df = DATA.iloc[[indices[0]]]
 
     for i in indices[1:]:
-        current_row = data.iloc[[i]]
+        current_row = DATA.iloc[[i]]
         new_df = pd.concat([current_row, new_df])
 
     fig = px.scatter_mapbox(new_df,
@@ -576,6 +579,7 @@ def display_map_recommended(u: User) -> None:
     fig.update_layout(mapbox_style="open-street-map")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     fig.show()
+
 
 # TEST WITH:
 # u = User()
@@ -622,6 +626,7 @@ if __name__ == '__main__':
     # When you are ready to check your work with python_ta, uncomment the following lines.
     # (In PyCharm, select the lines below and press Ctrl/Cmd + / to toggle comments.)
     import python_ta
+
     python_ta.check_all(config={
         'max-line-length': 120,
         'extra-imports': imports,
