@@ -305,8 +305,8 @@ class Event:
     """
     name: str
     location: str
-    time: str
     date: str
+    time: str
     more_info: list[str]
 
     def __init__(self, name: str, location: str, time: str, date: str, more_info: list[str]):
@@ -323,9 +323,9 @@ class Event:
         self.more_info = more_info
 
 
-def create_event(name: str, location: str, date: str, time: Optional[str]):
+def create_event(name: str, location: str, date: str, time: str, more_info: list[str]):
     """Create an event and add it to the list of events"""
-    e = Event(name=name, location=location, time=time, date=date)
+    e = Event(name=name, location=location, time=time, date=date, more_info=more_info)
     all_events.append(e)
 
 
