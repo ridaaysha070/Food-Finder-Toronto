@@ -231,3 +231,23 @@ class CreateEvent:
         tk.Label(temp, text="Event Uploaded!", font=('Arial', 20)).pack()
         self.create_event.destroy()
 
+
+###################################################################################################
+# Main block
+###################################################################################################
+if __name__ == '__main__':
+    # We have provided the following code to run any doctest examples that you add.
+    # (We have not provided any doctest examples in the starter code, but encourage you
+    # to add your own.)
+    import doctest
+
+    doctest.testmod(verbose=True)
+
+    # When you are ready to check your work with python_ta, uncomment the following lines.
+    # (In PyCharm, select the lines below and press Ctrl/Cmd + / to toggle comments.)
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'extra-imports': ['hashlib', 'tkinter', 'computations']
+    })
+
