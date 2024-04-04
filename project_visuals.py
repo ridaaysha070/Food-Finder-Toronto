@@ -16,10 +16,11 @@ class Home:
         self.homepage = tk.Tk()
         self.homepage.geometry("400x400")
         self.homepage.title("Food Finder Home")
+
         hometitle = tk.Label(self.homepage, text="Toronto Food Finder Home", font=('Arial', 20))
         hometitle.pack(pady=40)
-        find_restaurant = tk.Button(self.homepage, text='Find restaurants', font=('Arial', 14), command=RestaurantFinder
-                                    )
+        find_restaurant = tk.Button(self.homepage, text='Find restaurants', font=('Arial', 14),
+                                    command=RestaurantFinder)
         find_restaurant.pack(pady=10)
         find_events = tk.Button(self.homepage, text='See events', font=('Arial', 14), command=ShowEvents)
         find_events.pack(pady=10)
@@ -40,7 +41,7 @@ class RestaurantFinder:
 
     def __init__(self) -> None:
         self.restofinder = tk.Tk()
-        self.restofinder.geometry("700x700")
+        self.restofinder.geometry("500x600")
         self.restofinder.title("Restaurant Searcher")
 
         user_address_prompt = tk.Label(self.restofinder, font=("Arial", 14),
@@ -53,37 +54,35 @@ class RestaurantFinder:
         l1 = tk.Label(frame, text='Select cuisine')
         l1.grid(row=0, column=0)
         course = computations.get_all_cuisines()
-        self.cuisines = tk.ttk.Combobox(frame, value=course, width=10)
+        self.cuisines = ttk.Combobox(frame, value=course, width=10)
         self.cuisines.grid(row=1, column=0)
         frame.pack(pady=20)
-
-        # self.price_range = tk.ttk.Combobox(frame, value=['Under $10', '$11-30', '$31-60', 'Above $61'], width=10)
 
         frame2 = tk.Frame(self.restofinder)
         l2 = tk.Label(frame2, text='Select price range')
         l2.grid(row=0, column=0)
-        self.price_range = tk.ttk.Combobox(frame2, value=['Under $10', '$11-30', '$31-60', 'Above $61'], width=10)
+        self.price_range = ttk.Combobox(frame2, value=['Under $10', '$11-30', '$31-60', 'Above $61'], width=10)
         self.price_range.grid(row=1, column=0)
         frame2.pack(pady=20)
 
         frame3 = tk.Frame(self.restofinder)
         l3 = tk.Label(frame3, text='Select distance from the given address')
         l3.grid(row=0, column=0)
-        self.distance = tk.ttk.Combobox(frame3, value=['Under 1 km', '1-5 km', 'Above 5 km'], width=10)
+        self.distance = ttk.Combobox(frame3, value=['Under 1 km', '1-5 km', 'Above 5 km'], width=10)
         self.distance.grid(row=1, column=0)
         frame3.pack(pady=20)
 
         frame4 = tk.Frame(self.restofinder)
         l4 = tk.Label(frame4, text='Select a Yelp star rating')
         l4.grid(row=0, column=0)
-        self.star = tk.ttk.Combobox(frame4, value=['Any', '1 star', '2 stars', '3 stars', '4 stars', '5 stars'],
-                                    width=10)
-        self.star.grid(row=1, column=0)
-
+        star = ttk.Combobox(frame4, value=['Any', '1 star', ' 2 stars', '3 stars', '4 stars', '5 stars'],
+                            width=10)
+        star.grid(row=1, column=0)
         frame4.pack(pady=20)
 
         search = tk.Button(self.restofinder, text="Search restaurants", command=self.save)
         search.pack(pady=20)
+
         self.restofinder.mainloop()
 
     def save(self) -> None:
@@ -93,7 +92,7 @@ class RestaurantFinder:
         selected_price_range = self.price_range.get()
         selected_distance = self.distance.get()
         selected_star = self.star.get()
-        U.questions = [selected_price_range, selected_cuis, selected_distance, selected_star]
+        U.questions = [selected_price_range, selected_cuis, selected_cuis, selected_star]
         U.location = user_ad
         U.latitude = computations.get_coords(U.location)[0]
         U.longitude = computations.get_coords(U.location)[1]
@@ -102,7 +101,8 @@ class RestaurantFinder:
             tk.Label(self.restofinder, text='Please fill all criteria').pack(pady=20)
         else:
             temp = computations.get_user_info(U, location=user_ad, distance=selected_distance,
-                                              cuisine=selected_cuis, price=selected_price_range, star=selected_star)
+                                              cuisine=selected_cuis, price=selected_price_range,
+                                              star=selected_star)
             if temp:
                 tk.Label(self.restofinder, text='Invalid address').pack()
             else:
@@ -110,8 +110,8 @@ class RestaurantFinder:
 
     def show_restaurants(self) -> None:
         """Show the restaurants meeting the user's criteria"""
-        recommended_restaurants = computations.run_restaurant_finder(U)
-        U.recommendations = computations.run_restaurant_finder2(U)
+        recommended_restaurants = computations.run_restaurant_finder(user=U)
+
         if len(recommended_restaurants) == 0:
             (tk.Label(self.restofinder, text='No restaurants found, please edit your search requirements', font=18)
              .pack(padx=20))
@@ -124,61 +124,38 @@ class RestaurantFinder:
             for r in recommended_restaurants:
                 resto_name = r[12:len(r) - 1]
                 tk.Label(show_recs, text=resto_name, font=14).pack()
-            tk.Button(show_recs, text='More Info', font=12, command=MoreInfo).pack()
+                tk.Button(show_recs, text='More Info', font=12, command=self.get_resto_info(resto_name)).pack()
 
             tk.Button(show_recs, text='View Map', command=computations.display_map_recommended(U)).pack()
 
-
-class MoreInfo:
-    """Get additional info"""
-    more_info: tk.Tk
-
-    def __init__(self) -> None:
-        self.more_info = tk.Tk()
-        self.more_info.geometry("700x700")
-        self.more_info.title("")
-        # l2 = tk.Label(self.more_info, font=("Arial", 14),
-        # text='Enter the restaurant you want more information about.')
-        # l2.pack(pady=20)
-
-        # name = tk.Entry(self.more_info, font=("Arial", 12))
-        # name.grid(row=1, column=0)
-        # name.pack(pady=20)
-        self.get_resto_info()
-
-    def get_resto_info(self) -> None:
+    def get_resto_info(self, name: str) -> None:
         """Run the restaurant finder from the backend file"""
+        more_info = tk.Tk()
+        more_info.title(name)
 
-        rests = [u[0] for u in U.recommendations]
-        for rest in rests:
-            # self.restinfo = name.get()
-            matches = computations.get_restaurant_info(user=U, restaurant=rest.name, loc=True, con=True,
-                                                       review=True)
-            for m in matches:
-                for n in m:
-                    tk.Label(self.more_info, text=n, font=12).pack(padx=20)
+        a, c, r = tk.IntVar(), tk.IntVar(), tk.IntVar()
 
-        self.more_info.mainloop()
-        # l, c, r = tk.IntVar(), tk.IntVar(), tk.IntVar()
+        location = tk.Checkbutton(more_info, text='Location', variable=a)
+        location.pack()
+        contact = tk.Checkbutton(more_info, text='Contact Information', variable=c)
+        contact.pack()
+        review = tk.Checkbutton(more_info, text='Review Information', variable=r)
+        review.pack()
 
-        # location = tk.Checkbutton(self.more_info, text='Location', variable=l)
-        # location.pack()
-        # contact = tk.Checkbutton(self.more_info, text='Contact Information', variable=c)
-        # contact.pack()
-        # review = tk.Checkbutton(self.more_info, text='Review Information', variable=r)
-        # review.pack()
-
-        # return str(matches)
-
-        # try matches[len(matches) - 1]:
-        # tk.Label(more_info, text=matches[len(matches) - 1], font=14).pack()
-        # except IndexError:
-        # tk.Label(more_info, text='X')
+        matches = computations.get_restaurant_info(user=U, restaurant=name, loc=(location == 1), con=(contact == 1),
+                                                   review=review == 1)
+        for m in matches[:len(matches) - 1]:
+            tk.Label(location, text=m[0], font=14).pack()
+            for n in m[1]:
+                if n:
+                    tk.Label(location, text=n, font=12).pack()
+        if matches[len(matches) - 1]:
+            tk.Label(location, text=matches[len(matches) - 1], font=14).pack()
 
 
 class ShowEvents:
     """Window to show user-inputted events"""
-    show_events: tk.Tk
+    show_events: tk.Tk()
 
     def __init__(self) -> None:
         """Create the show_events window"""
@@ -201,7 +178,7 @@ class ShowEvents:
 
 class CreateEvent:
     """Window to create a new event"""
-    create_event: tk.Tk
+    create_event: tk.Tk()
     n: tk.Entry
     d: tk.Entry
     t: tk.Entry
@@ -281,7 +258,6 @@ if __name__ == '__main__':
     # When you are ready to check your work with python_ta, uncomment the following lines.
     # (In PyCharm, select the lines below and press Ctrl/Cmd + / to toggle comments.)
     import python_ta
-
     python_ta.check_all(config={
         'max-line-length': 120,
         'extra-imports': ['hashlib', 'tkinter', 'computations']
