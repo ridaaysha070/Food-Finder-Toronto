@@ -49,12 +49,12 @@ class User:
         self.recommendations = []
 
 
-def get_user_info(user: User, location: str, cuisine: str, price: str, distance: str) -> Optional[str]:
+def get_user_info(user: User, location: str, cuisine: str, price: str, distance: str, star: str) -> Optional[str]:
     # adding a location argument, removing the input
     """
     Modify a User object based on the user's input.
     """
-    answers = [distance, cuisine, price]
+    answers = [price, cuisine, distance, star]
     user.questions = [x.capitalize() for x in answers]
     if location:
         geolocator = Nominatim(user_agent="a")
@@ -68,6 +68,14 @@ def get_user_info(user: User, location: str, cuisine: str, price: str, distance:
         return 'Invalid location'
 
     # print('loading...')
+
+def get_coords(ad: str) -> tuple[float, float]:
+    geolocator = Nominatim(user_agent="a")
+    loc1 = geolocator.geocode(ad)
+    lat = loc1.raw['lat']
+    long = loc1.raw['lon']
+    return lat, long
+
 
 # def get_user_input(questions: list[str]) -> list[str]:
 #     """Return the user's answers to a list of questions."""
@@ -529,7 +537,7 @@ def run_restaurant_finder() -> list[str]:  # User object must be created first
     Create a user object and find restaurants for that user based on their requirements.
     """
     user = User()
-    get_user_info(user)
+    get_user_info(user, user.location, user.questions[1], user.questions[0], user.questions[2])
     # if you use the same user object you get duplicate outputs...
     lst = load_data(user)
     tree = build_tree_w_rests(lst)
