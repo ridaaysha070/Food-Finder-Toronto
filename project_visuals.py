@@ -103,7 +103,7 @@ class RestaurantFinder:
 
     def show_restaurants(self):
         """Show the restaurants meeting the user's criteria"""
-        self.recommended_restaurants = updated_april3.run_restaurant_finder_test(U)
+        self.recommended_restaurants = updated_april3.run_restaurant_finder()
 
         if len(self.recommended_restaurants) == 0:
             (tk.Label(self.restofinder, text='No restaurants found, please edit your search requirements', font=18)
